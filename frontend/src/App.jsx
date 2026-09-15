@@ -14,12 +14,16 @@ const today = new Date().toLocaleDateString(undefined, {
 export default function App() {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    fetchTodos()
+    const status = filter === 'all' ? undefined : filter;
+
+    setLoading(true);
+    fetchTodos(status)
       .then(data => { setTodos(data); setLoading(false); })
       .catch(err => { console.error(err); setLoading(false); });
-  }, []);
+  }, [filter]);
 
   const handleAdd = async (title) => {
     const newTodo = await createTodo(title);
@@ -48,6 +52,26 @@ export default function App() {
           <span className="stamp">Tasks</span>
           <p className="receipt-date">{today}</p>
         </header>
+
+        <div style={{ display: 'flex', gap: '8px', margin: '12px 0' }}>
+          {['all', 'active', 'done'].map(option => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setFilter(option)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '999px',
+                border: filter === option ? '1px solid #2d2d2d' : '1px solid #d9d9d9',
+                background: filter === option ? '#2d2d2d' : '#ffffff',
+                color: filter === option ? '#ffffff' : '#2d2d2d',
+                cursor: 'pointer'
+              }}
+            >
+              {option === 'all' ? 'All' : option === 'active' ? 'Active' : 'Done'}
+            </button>
+          ))}
+        </div>
 
         <TodoForm onAdd={handleAdd} />
         <TodoList
